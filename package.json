@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "dev": "rollup -w -c scripts/config.js --sourcemap --environment TARGET:web-full-dev",
     "build": "node scripts/build.js"
   },
   "devDependencies": {

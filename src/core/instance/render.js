@@ -23,9 +23,8 @@ export function renderMixin (Vue) {
     // 这里vm._renderProxy 已经在src\core\instance\init.js引入被调用赋值 发生在$mount之前
     // 这里vm._renderProxy在src\core\instance\proxy.js文件中我们简单赋值为vm
     // $createElement解释在本文件initRender函数中
-    // 下面函数返回值为vnode
+    // 下面函数返回值为总的vnode层级
     vnode = render.call(vm._renderProxy, vm.$createElement)
-    // console.log(vnode,'vnode')
     return vnode
   }
 }

@@ -9,13 +9,12 @@
 </head>
 <body>
   <div id="hh"></div>
-  <div id="xx">
-    <span>hhhh</span>
-  </div>
   <script>
     const vm = new Vue({
       el: '#hh',
-      render:(h) => h('div', {} , [h('span', '哈哈哈')])
+      // render:(h) => h('div', {} , [h('span', [h('span','xxx')])])
+      render:(h) => h('div', {} , [h('span', 'xxx')])
+      // render:(h) => h('div', {} , ['hhh','hhh'])
     })
     // console.log(vm)
   </script>

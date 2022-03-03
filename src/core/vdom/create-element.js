@@ -3,6 +3,9 @@ import {
   isPrimitive,
 } from '../util/index'
 import VNode from './vnode'
+import {
+  normalizeChildren,
+} from './helpers/index'
 
 const SIMPLE_NORMALIZE = 1
 const ALWAYS_NORMALIZE = 2
@@ -30,6 +33,10 @@ export function createElement (
 
 export function _createElement (context, tag, data, children, normalizationType){
   let vnode
+  if (normalizationType === ALWAYS_NORMALIZE) {
+    // 在这一步设置了vnode.text 以便在src\core\vdom\patch.js createChildren函数中使用
+    children = normalizeChildren(children)
+  } 
   if (typeof tag === 'string') {
     vnode = new VNode(
       tag, data, children,
