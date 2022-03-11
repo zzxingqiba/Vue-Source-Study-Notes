@@ -13,6 +13,7 @@ export function createPatchFunction (backend) {
   let i, j
   const cbs = {}
 
+  // nodeOps操作节点的一些方法 来自src\platforms\web\runtime\node-ops.js
   const { modules, nodeOps } = backend
 
   function emptyNodeAt (elm) {
@@ -23,10 +24,10 @@ export function createPatchFunction (backend) {
   function createChildren (vnode, children, insertedVnodeQueue) {
     if (Array.isArray(children)) {
       for (let i = 0; i < children.length; ++i) {
-        // console.log(vnode,'vnode')
         createElm(children[i], insertedVnodeQueue, vnode.elm, null, true, children, i)
       }
     }else if (isPrimitive(vnode.text)) { // 这里暂不知有什么作用
+      console.log('hhhhhh')
       nodeOps.appendChild(vnode.elm, nodeOps.createTextNode(String(vnode.text)))
     }
   }
@@ -78,9 +79,10 @@ export function createPatchFunction (backend) {
       insert(parentElm, vnode.elm, refElm)
     }
   }
-
+  
+  // 参数来自src\core\instance\lifecycle.js  这个函数主要除里vnode.elm为真实节点
   return function patch(oldVnode, vnode, hydrating, removeOnly){
-    // oldVnode指的就是el的DOM节点 vnode指的是解析render生成的vnode
+    // oldVnode指的就是el的DOM节点 vnode指的是解析render生成的vnode树
     // 如果vnode不存在 暂不考虑
     // if (isUndef(vnode)) {
     //   if (isDef(oldVnode)) invokeDestroyHook(oldVnode)
@@ -110,7 +112,7 @@ export function createPatchFunction (backend) {
         insertedVnodeQueue,
         // extremely rare edge case: do not insert if old element is in a
         // leaving transition. Only happens when combining transition +
-        // keep-alive + HOCs. (#4590)
+        // keep-alive + HOCs. (#4590) 看意思应该是过渡时候怕有bug吧
         oldElm._leaveCb ? null : parentElm,
         nodeOps.nextSibling(oldElm)
       )
