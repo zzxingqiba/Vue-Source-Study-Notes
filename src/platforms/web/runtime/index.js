@@ -10,7 +10,7 @@ Vue.prototype.__patch__ = inBrowser ? patch : noop
 
 
 Vue.prototype.$mount = function (el, hydrating){
-  el = el? query(el) : undefined
+  el = el? query(el) : undefined //取到el的DOM节点
   return mountComponent(this, el, hydrating)
 }
 

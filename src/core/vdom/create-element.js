@@ -31,6 +31,7 @@ export function createElement (
   return _createElement(context, tag, data, children, normalizationType)
 }
 
+// 例：render:(h) => h('div', {} , [h('span', '哈哈哈')])  此处经过调用render 将一层层的h函数更改为vnode数组赋值给children 最终返回嵌套关系的vnode总层级
 export function _createElement (context, tag, data, children, normalizationType){
   let vnode
   if (normalizationType === ALWAYS_NORMALIZE) {

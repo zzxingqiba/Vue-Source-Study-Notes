@@ -9,4 +9,5 @@ import { createPatchFunction } from '../../../core/vdom/patch'
 // built-in modules have been applied.
 // const modules = platformModules.concat(baseModules)
 
+// nodeOps中是一些转真实DOM的一些操作
 export const patch = createPatchFunction({ nodeOps })

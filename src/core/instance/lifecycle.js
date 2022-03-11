@@ -12,7 +12,7 @@ export function lifecycleMixin (Vue) {
     vm._vnode = vnode
     
     if (!prevVnode) {
-      // initial render
+      // initial render      
       vm.$el = vm.__patch__(vm.$el, vnode, hydrating, false)
     }else{
       // updates
@@ -31,7 +31,7 @@ export function mountComponent (vm, el, hydrating){
   let updateComponent
   updateComponent = () => {
     // vm._render()在src\core\instance\index.js初始化时被调用renderMixin 挂载至Vue.prototype
-    // 此处是在遍历render函数节点 转为DOM层级结构 
+    // 此处是在遍历render函数节点 vm._render()返回的处理好的render(options传入的render)总的vnode层级
     vm._update(vm._render(), hydrating)
   }
   console.log('暂时调用充当Watch', updateComponent())
