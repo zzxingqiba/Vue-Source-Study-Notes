@@ -1,7 +1,7 @@
 
 import { initProxy } from './proxy'
 import { initRender } from './render'
-
+import { mergeOptions } from '../util/index'
 
 let uid = 0
 export function initMixin(Vue){
@@ -11,9 +11,11 @@ export function initMixin(Vue){
     vm._isVue = true
 
     
-    vm.$options = options || {}
-    resolveConstructorOptions(vm.constructor)
-    console.log( )
+    vm.$options = mergeOptions(
+      resolveConstructorOptions(vm.constructor),
+      options || {},
+      vm
+    )
     initProxy(vm)
     initRender(vm)
 

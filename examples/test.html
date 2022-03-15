@@ -13,8 +13,10 @@
     const vm = new Vue({
       el: '#hh',
       // render:(h) => h('div', {} , [h('span', [h('span','xxx')])])
-      render:(h) => h('div', {} , [h('span', 'xxx')])
+      render:(h) => h('div', {} , [h('span', 'xxx')]),
       // render:(h) => h('div', {} , ['hhh','hhh'])
+      // props:['mode', 'text','text-ee','Texc','TeasMla']
+      props: { text: { default: 'hh', type: String }, disabled: Boolean }
     })
     // console.log(vm)
   </script>
