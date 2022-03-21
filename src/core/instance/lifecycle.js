@@ -1,11 +1,46 @@
 import Watcher from "../observer/watcher";
 import { noop } from "../util/index";
+export let activeInstance = null;
+export function setActiveInstance(vm) {
+  const prevActiveInstance = activeInstance;
+  activeInstance = vm;
+  return () => {
+    activeInstance = prevActiveInstance;
+  };
+}
+
+export function initLifecycle(vm) {
+  const options = vm.$options;
+
+  // locate first non-abstract parent
+  let parent = options.parent; // VueComponent 会用到
+  if (parent && !options.abstract) {
+    while (parent.$options.abstract && parent.$parent) {
+      parent = parent.$parent;
+    }
+    parent.$children.push(vm);
+  }
+
+  vm.$parent = parent;
+  vm.$root = parent ? parent.$root : vm;
+
+  vm.$children = [];
+  vm.$refs = {};
+
+  vm._watcher = null;
+  vm._inactive = null;
+  vm._directInactive = false;
+  vm._isMounted = false;
+  vm._isDestroyed = false;
+  vm._isBeingDestroyed = false;
+}
 
 export function lifecycleMixin(Vue) {
   Vue.prototype._update = function (vnode, hydrating) {
     const vm = this;
     const prevEl = vm.$el; // 下方mountComponent函数赋值的$el
     const prevVnode = vm._vnode;
+    const restoreActiveInstance = setActiveInstance(vm);
     vm._vnode = vnode;
 
     if (!prevVnode) {
@@ -15,6 +50,7 @@ export function lifecycleMixin(Vue) {
       // updates
       vm.$el = vm.__patch__(prevVnode, vnode);
     }
+    restoreActiveInstance();
   };
 }
 

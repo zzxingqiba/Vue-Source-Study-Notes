@@ -23,6 +23,7 @@ Vue.prototype.$mount = function (el, hydrating) {
   }
   // this.$options在src/core/instance/init.js被赋值， 包含了传入new Vue时的参数
   const options = this.$options;
+  console.log(options, "options");
   // 因为new Vue时可以通过传入render函数进行渲染，这里是全部处理成render形式
   if (!options.render) {
     let template = options.template;
@@ -33,12 +34,12 @@ Vue.prototype.$mount = function (el, hydrating) {
         if (template.charAt(0) === "#") {
           // cached函数相当于使用闭包创建了一个对象，将id作为key，el的innerHTML作为value存放进去 读取时先找缓存 否则查找选择器然后添加进去  （相当于缓存了一下）
           template = idToTemplate(template);
-        } else if (template.nodeType) {
-          // 如果是节点的话 直接去其中innerHTML
-          template = template.innerHTML;
-        } else {
-          return this;
         }
+      } else if (template.nodeType) {
+        // 如果是节点的话 直接去其中innerHTML
+        template = template.innerHTML;
+      } else {
+        return this;
       }
     } else if (el) {
       // 查找.$mount(id)中id的标签 无包含则创建div将el下所有节点拷贝进去
@@ -54,10 +55,10 @@ Vue.prototype.$mount = function (el, hydrating) {
       // }, this)
       // options.render = render
       // options.staticRenderFns = staticRenderFns
-
-      options.render = function () {
-        return "2222";
+      const render = function (h) {
+        return h("div", {}, [h("span", "xxx3424")]);
       };
+      options.render = render;
     }
   }
   return mount.call(this, el, hydrating); // mount为runtime/index的方法 返回值为vm
