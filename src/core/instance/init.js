@@ -34,7 +34,6 @@ export function initMixin(Vue) {
 
 export function initInternalComponent(vm, options) {
   const opts = (vm.$options = Object.create(vm.constructor.options));
-
   // doing this because it's faster than dynamic enumeration.
   const parentVnode = options._parentVnode;
   opts.parent = options.parent;

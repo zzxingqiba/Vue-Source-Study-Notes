@@ -83,14 +83,12 @@ export function createPatchFunction(backend) {
     ownerArray,
     index
   ) {
-    console.log(parentElm, "parentElm");
     // 这里的意思应该是render过一次的vnode 他这里重新clone vnode了一份重新赋值vnode 暂不知应用场景
     if (isDef(vnode.elm) && isDef(ownerArray)) {
       vnode = ownerArray[index] = cloneVNode(vnode);
     }
 
     vnode.isRootInsert = !nested;
-
     if (createComponent(vnode, insertedVnodeQueue, parentElm, refElm)) {
       return;
     }
@@ -143,7 +141,7 @@ export function createPatchFunction(backend) {
     let isInitialPatch = false;
     const insertedVnodeQueue = [];
     if (isUndef(oldVnode)) {
-      // 如果oldVnode不存在 这次例子不走这里 走下面
+      // 自定义的component走这里
       // empty mount (likely as component), create new root element
       isInitialPatch = true;
       createElm(vnode, insertedVnodeQueue);

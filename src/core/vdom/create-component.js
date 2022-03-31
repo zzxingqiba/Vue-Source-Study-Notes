@@ -53,7 +53,7 @@ export function createComponentInstanceForVnode(
   return new vnode.componentOptions.Ctor(options); // 此处相当于src\core\global-api\extend.js的Sub 调用init方法
 }
 
-// Ctor 为 new Vue时components传入的对象
+// Ctor 为 new Vue时components传入的对象  context为Vue实例
 export function createComponent(Ctor, data, context, children, tag) {
   if (isUndef(Ctor)) {
     return;
@@ -61,7 +61,7 @@ export function createComponent(Ctor, data, context, children, tag) {
   const baseCtor = context.$options._base;
   // plain options object: turn it into a constructor
   if (isObject(Ctor)) {
-    Ctor = baseCtor.extend(Ctor);
+    Ctor = baseCtor.extend(Ctor); //处理成src\core\global-api\extend.js 中的sub函数
   }
   if (typeof Ctor !== "function") {
     return;

@@ -23,7 +23,6 @@ Vue.prototype.$mount = function (el, hydrating) {
   }
   // this.$options在src/core/instance/init.js被赋值， 包含了传入new Vue时的参数
   const options = this.$options;
-  console.log(options, "options");
   // 因为new Vue时可以通过传入render函数进行渲染，这里是全部处理成render形式
   if (!options.render) {
     let template = options.template;
