@@ -83,3 +83,25 @@ export const capitalize = cached((str) => {
  * Always return false.
  */
 export const no = (a, b, c) => false;
+
+// 传入字符串 生成一个数组 将数组改为map映射对象 key为数组取出值 value为true
+export function makeMap (
+  str,
+  expectsLowerCase
+){
+  const map = Object.create(null)
+  const list= str.split(',')
+  for (let i = 0; i < list.length; i++) {
+    map[list[i]] = true
+  }
+  return expectsLowerCase
+    ? val => map[val.toLowerCase()]
+    : val => map[val]
+}
+
+// 传入数组 生成一个逗号分隔静态字符串
+export function genStaticKeys (modules) {
+  return modules.reduce((keys, m) => {
+    return keys.concat(m.staticKeys || [])
+  }, []).join(',')
+}

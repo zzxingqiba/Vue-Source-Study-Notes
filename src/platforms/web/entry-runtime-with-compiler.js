@@ -1,8 +1,8 @@
 import Vue from "./runtime/index.js";
 import { cached } from "../../core/util/index";
-
 import { query } from "./util/index";
-// import { compileToFunctions } from './compiler/index'
+import { compileToFunctions } from './compiler/index'
+import { shouldDecodeNewlines, shouldDecodeNewlinesForHref } from './util/compat'
 
 const idToTemplate = cached((id) => {
   const el = query(id);
@@ -45,19 +45,15 @@ Vue.prototype.$mount = function (el, hydrating) {
       template = getOuterHTML(el);
     }
     if (template) {
-      // const { render, staticRenderFns } = compileToFunctions(template, {
-      //   outputSourceRange: process.env.NODE_ENV !== 'production',
-      //   shouldDecodeNewlines,
-      //   shouldDecodeNewlinesForHref,
-      //   delimiters: options.delimiters,
-      //   comments: options.comments
-      // }, this)
-      // options.render = render
+      const { render, staticRenderFns } = compileToFunctions(template, {
+        outputSourceRange: false, // 判断不是生产环境 先给个默认值
+        shouldDecodeNewlines, // 检查换行符 （先不管）
+        shouldDecodeNewlinesForHref, // 检查换行符（先不管）
+        delimiters: options.delimiters, // 换行符 （先不管）
+        comments: options.comments // 未知
+      }, this)
+      options.render = render
       // options.staticRenderFns = staticRenderFns
-      const render = function (h) {
-        return h("div", {}, [h("span", "xxx3424")]);
-      };
-      options.render = render;
     }
   }
   return mount.call(this, el, hydrating); // mount为runtime/index的方法 返回值为vm
