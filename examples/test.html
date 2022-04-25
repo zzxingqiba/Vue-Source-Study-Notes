@@ -8,20 +8,23 @@
   <script src="../dist/vue.js"></script>
 </head>
 <body>
-  <div :[name]="xxx.zhang" id="hh">
+  <!-- <div :[name]="xxx.zhang" id="hh">
     哈哈
     <span :key="2">123 {{name}}2</span>
     <div v-for="(item,index) in list" >okok</div>
     <span v-if="true">1</span>
     <span v-else-if="false">2</span>
     <span v-else>3</span>
+  </div> -->
+  <div id="hh">
+    <span :data.prop.sync="map.a.a">3</span>
   </div>
   <script>
     const vm = new Vue({
       el: '#hh',
       data(){
         return {
-          name: 'hh'
+          name: 'hh',
         }
       }
 
