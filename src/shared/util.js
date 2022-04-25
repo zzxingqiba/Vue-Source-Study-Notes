@@ -83,3 +83,23 @@ export const capitalize = cached((str) => {
  * Always return false.
  */
 export const no = (a, b, c) => false;
+
+export function extend(to, _from) {
+  for (const key in _from) {
+    to[key] = _from[key];
+  }
+  return to;
+}
+
+/**
+ * Make a map and return a function for checking if a key
+ * is in that map.
+ */
+export function makeMap(str, expectsLowerCase) {
+  const map = Object.create(null);
+  const list = str.split(",");
+  for (let i = 0; i < list.length; i++) {
+    map[list[i]] = true;
+  }
+  return expectsLowerCase ? (val) => map[val.toLowerCase()] : (val) => map[val];
+}

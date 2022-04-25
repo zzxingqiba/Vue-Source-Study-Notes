@@ -1,6 +1,6 @@
-import { baseOptions } from './options'
-import { createCompiler } from 'compiler/index'
+import { baseOptions } from "./options";
+import { createCompiler } from "../../../../src/compiler/index";
 
-const { compile, compileToFunctions } = createCompiler(baseOptions)
+const { compileToFunctions } = createCompiler(baseOptions);
 
-export { compile, compileToFunctions }
+export { compileToFunctions };

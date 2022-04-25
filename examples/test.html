@@ -8,24 +8,24 @@
   <script src="../dist/vue.js"></script>
 </head>
 <body>
-  <div id="hh"></div>
+  <div :[name]="xxx.zhang" id="hh">
+    哈哈
+    <span :key="2">123 {{name}}2</span>
+    <div v-for="(item,index) in list" >okok</div>
+    <span v-if="true">1</span>
+    <span v-else-if="false">2</span>
+    <span v-else>3</span>
+  </div>
   <script>
     const vm = new Vue({
       el: '#hh',
-      // render:(h) => h('div', {} , [h('span', [h('span','xxx')])])
-      // render:(h) => h('div', {} , [h('span', 'xxx')]),
-      // render:(h) => h('div', {} , ['hhh','hhh'])
-      // props:['mode', 'text','text-ee','Texc','TeasMla']
-      // props: { text: { default: 'hh', type: String }, disabled: Boolean },
-      render:(h) => h('h1', {} , [h('xxx')]),
-      components:{
-        'xxx': {
-          template: '<h1>222</h1>'
+      data(){
+        return {
+          name: 'hh'
         }
       }
 
     })
-    // console.log(vm)
   </script>
 </body>
 </html>
