@@ -8,16 +8,10 @@
   <script src="../dist/vue.js"></script>
 </head>
 <body>
-  <!-- <div :[name]="xxx.zhang" id="hh">
-    哈哈
-    <span :key="2">123 {{name}}2</span>
-    <div v-for="(item,index) in list" >okok</div>
-    <span v-if="true">1</span>
-    <span v-else-if="false">2</span>
-    <span v-else>3</span>
-  </div> -->
   <div id="hh">
-    <span :data.prop.sync="map.a.a">3</span>
+    <span v-for="(item,index) in [1,2,3,4]">
+      <span>{{item}}</span>
+    </span>
   </div>
   <script>
     const vm = new Vue({
@@ -27,7 +21,6 @@
           name: 'hh',
         }
       }
-
     })
   </script>
 </body>

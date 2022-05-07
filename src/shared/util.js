@@ -53,6 +53,28 @@ export function cached(fn) {
  */
 const _toString = Object.prototype.toString;
 
+/**
+ * Convert a value to a string that is actually rendered.
+ */
+export function toString(val) {
+  return val == null
+    ? ""
+    : Array.isArray(val) || (isPlainObject(val) && val.toString === _toString)
+    ? // 第二个参数是数组
+      //   const obj = {
+      //     name: '张三',
+      //     age: '20',
+      //     school: [
+      //         '某某小学', '某某中学'
+      //     ]
+      // }
+      // const json1 = JSON.stringify(obj, ['age'])
+      // console.log(json1) //{"age":"20"}
+      // 第三个参数代表缩进几位 这里缩进2格
+      JSON.stringify(val, null, 2)
+    : String(val);
+}
+
 export function toRawType(value) {
   return _toString.call(value).slice(8, -1);
 }
@@ -102,4 +124,27 @@ export function makeMap(str, expectsLowerCase) {
     map[list[i]] = true;
   }
   return expectsLowerCase ? (val) => map[val.toLowerCase()] : (val) => map[val];
+}
+
+export const emptyObject = Object.freeze({});
+
+const hyphenateRE = /\B([A-Z])/g;
+export const hyphenate = cached((str) => {
+  return str.replace(hyphenateRE, "-$1").toLowerCase();
+});
+
+/**
+ * Check if a tag is a built-in tag.
+ */
+export const isBuiltInTag = makeMap("slot,component", true);
+
+/**
+ * Generate a string containing static keys from compiler modules.
+ */
+export function genStaticKeys(modules) {
+  return modules
+    .reduce((keys, m) => {
+      return keys.concat(m.staticKeys || []);
+    }, [])
+    .join(",");
 }

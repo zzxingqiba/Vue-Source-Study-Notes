@@ -49,7 +49,7 @@ Vue.prototype.$mount = function (el, hydrating) {
       template = getOuterHTML(el);
     }
     if (template) {
-      compileToFunctions(
+      const { render, staticRenderFns } = compileToFunctions(
         template,
         {
           outputSourceRange: false,
@@ -60,8 +60,8 @@ Vue.prototype.$mount = function (el, hydrating) {
         },
         this
       );
-      // options.staticRenderFns = staticRenderFns
-      // options.render = render;
+      options.staticRenderFns = staticRenderFns;
+      options.render = render;
     }
   }
   return mount.call(this, el, hydrating); // mount为runtime/index的方法 返回值为vm

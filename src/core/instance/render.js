@@ -1,14 +1,22 @@
 import { createElement } from "../vdom/create-element";
+import { installRenderHelpers } from "./render-helpers/index";
 
 // initRender函数已经在src\core\instance\init.js引入被调用赋值 发生在$mount之前
 export function initRender(vm) {
   vm._vnode = null; // the root of the child tree
   vm._staticTrees = null; // v-once cached trees
+
+  // _c函数在此注册
+  vm._c = (a, b, c, d) => createElement(vm, a, b, c, d, false);
   // 将vm传入 这个true暂时不知有何作用  前往create-element文件
   vm.$createElement = (a, b, c, d) => createElement(vm, a, b, c, d, true);
 }
 
 export function renderMixin(Vue) {
+  // 处理ast为render函数的方法  加在Vue.prototype上
+  // install runtime convenience helpers
+  installRenderHelpers(Vue.prototype);
+
   Vue.prototype.$nextTick = function (fn) {
     console.log(fn, "$nextTick");
   };

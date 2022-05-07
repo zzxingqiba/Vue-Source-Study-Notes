@@ -1,15 +1,23 @@
 import { parseHTML } from "./html-parser";
-import { getAndRemoveAttr, getBindingAttr } from "../helpers";
-import { extend, cached, camelize } from "../../shared/util";
+import {
+  getAndRemoveAttr,
+  getBindingAttr,
+  addHandler,
+  addAttr,
+  addDirective,
+} from "../helpers";
+import { extend, cached, camelize, hyphenate } from "../../shared/util";
 import { parseFilters } from "./filter-parser";
 import { parseText } from "./text-parser";
 import { genAssignmentCode } from "../directives/model";
 
+export const onRE = /^@|^v-on:/;
 export const forAliasRE = /([\s\S]*?)\s+(?:in|of)\s+([\s\S]*)/;
 export const forIteratorRE = /,([^,\}\]]*)(?:,([^,\}\]]*))?$/;
 export const dirRE = /^v-|^@|^:|^#/;
 export const bindRE = /^:|^\.|^v-bind:/;
 
+const argRE = /:(.*)$/;
 const stripParensRE = /^\(|\)$/g;
 const modifierRE = /\.[^.\]]+(?=[^\]]*$)/g;
 const dynamicArgRE = /^\[.*\]$/;
@@ -124,16 +132,47 @@ export function parse(template, options) {
   let inPre = false;
   let inVPre = false;
   const whitespaceOption = false;
-  const preserveWhitespace = false;
+  const preserveWhitespace = true;
 
   function closeElement(element) {
     trimEndingWhitespace(element);
     element = processElement(element, options);
+    if (!stack.length && element !== root) {
+      // allow root elements with v-if, v-else-if and v-else
+      if (root.if && (element.elseif || element.else)) {
+        addIfCondition(root, {
+          exp: element.elseif,
+          block: element,
+        });
+      }
+    }
+    if (currentParent && !element.forbidden) {
+      // console.log(currentParent)
+      // 走这里
+      if (element.elseif || element.else) {
+        processIfConditions(element, currentParent);
+      } else {
+        if (element.slotScope) {
+          // scoped slot
+          // keep it in the children list so that v-else(-if) conditions can
+          // find it as the prev node.
+          const name = element.slotTarget || '"default"';
+          (currentParent.scopedSlots || (currentParent.scopedSlots = {}))[
+            name
+          ] = element;
+        }
+        currentParent.children.push(element);
+        element.parent = currentParent;
+      }
+
+      // remove trailing whitespace node again
+      trimEndingWhitespace(element);
+    }
   }
 
   function trimEndingWhitespace(el) {
     // el.children[el.children.length - 1]数据格式为{type: 3, text: ' ', start: 189, end: 192}
-    // 此处目的移除最后一个结束标签前换行的空格  默认移除空格的那个数据
+    // 此处目的移除每个最后一个结束标签前换行的空格  默认移除空格的那个数据
     // 例：
     // <div :[name]="xxx.zhang" id="hh">
     //   哈哈
@@ -175,7 +214,7 @@ export function parse(template, options) {
       }
 
       if (!root) {
-        root = element;
+        root = element; // 记录root起始标签
       }
 
       if (!unary) {
@@ -202,7 +241,6 @@ export function parse(template, options) {
       // chars会在识别标签start之后识别到文本 进行调用
       // 接下来首先取值到children 在chars此函数中填写 currentParent的children属性 此处的currentParent在start函数中赋值为上一个标签 无论是平级标签还是父子标签  都可以正确知道此文本节点的父节点
       const children = currentParent.children;
-      1;
       if (inPre || text.trim()) {
         // 去除未闭合标签中的多余空白字符
         text = isTextTag(currentParent) ? text : decodeHTMLCached(text);
@@ -240,6 +278,7 @@ export function parse(template, options) {
       }
     },
   });
+  return root;
 }
 
 export function processElement(element, options) {
@@ -335,66 +374,102 @@ function processAttrs(el) {
             // data中 map: 1
             // <div :a-prop.sync="map">okok</div> 这种写法时syncGen会为map=$event
             syncGen = genAssignmentCode(value, `$event`);
-            console.log(syncGen);
-            // ·············明天继续············
-            // if (!isDynamic) {
-            //   addHandler(
-            //     el,
-            //     `update:${camelize(name)}`,
-            //     syncGen,
-            //     null,
-            //     false,
-            //     warn,
-            //     list[i]
-            //   );
-            //   if (hyphenate(name) !== camelize(name)) {
-            //     addHandler(
-            //       el,
-            //       `update:${hyphenate(name)}`,
-            //       syncGen,
-            //       null,
-            //       false,
-            //       warn,
-            //       list[i]
-            //     );
-            //   }
-            // } else {
-            //   // handler w/ dynamic event name
-            //   addHandler(
-            //     el,
-            //     `"update:"+(${name})`,
-            //     syncGen,
-            //     null,
-            //     false,
-            //     warn,
-            //     list[i],
-            //     true // dynamic
-            //   );
-            // }
+            if (!isDynamic) {
+              // 处理.sync 属性  给el（ASTElement）添加events对象 并处理成 el.events: { update:data: { value: '$set(map.a, "a", $event)', dynamic: undefined } }
+              addHandler(
+                el,
+                `update:${camelize(name)}`,
+                syncGen,
+                null,
+                false,
+                () => {},
+                list[i]
+              );
+              // hyphenate(name)作用:  <div :a-prop.sync="map.a" >okok</div>   hyphenate(name)后为a-prop   camelize(name)为aProp
+              if (hyphenate(name) !== camelize(name)) {
+                // 如果带 - 连接
+                // 处理.sync 属性  给el（ASTElement）添加events对象 并处理成   添加了两次event
+                // el.events = {
+                //   "update:data": {
+                //     value: '$set(map.a, "a", $event)',
+                //     dynamic: undefined,
+                //   },
+                //   "update:a-prop": {
+                //     value: '$set(map, "a", $event)',
+                //     dynamic: undefined,
+                //   },
+                // };
+                addHandler(
+                  el,
+                  `update:${hyphenate(name)}`,
+                  syncGen,
+                  null,
+                  false,
+                  warn,
+                  list[i]
+                );
+              }
+            } else {
+              // handler w/ dynamic event name
+              // 处理[]包裹的这种动态值 <div :[name].sync="map.a" >okok</div>
+              // el.events:{ "update:"+(name): { value: '$set(map, "a", $event)', dynamic: true } }
+              addHandler(
+                el,
+                `"update:"+(${name})`,
+                syncGen,
+                null,
+                false,
+                () => {},
+                list[i],
+                true // dynamic
+              );
+            }
           }
         }
-        if (
-          (modifiers && modifiers.prop) ||
-          (!el.component && platformMustUseProp(el.tag, el.attrsMap.type, name))
-        ) {
-          addProp(el, name, value, list[i], isDynamic);
-        } else {
-          addAttr(el, name, value, list[i], isDynamic);
-        }
+        // 暂不考虑value这种属性 (这里会将之前处理的v-model变成value存入props中   el.props = [{name: 'value', value: '(map.a)', dynamic: undefined}])
+        // if (
+        //   (modifiers && modifiers.prop) ||
+        //   (!el.component && platformMustUseProp(el.tag, el.attrsMap.type, name))
+        // ) {
+        //   addProp(el, name, value, list[i], isDynamic);
+        // } else {
+        //   addAttr(el, name, value, list[i], isDynamic);
+        // }
+        // 为el添加attrs属性  []包裹动态属性会被放入el.dynamicAttrs  不是则会放入el.attrs
+        addAttr(el, name, value, list[i], isDynamic);
       } else if (onRE.test(name)) {
         // v-on
-        name = name.replace(onRE, "");
-        isDynamic = dynamicArgRE.test(name);
+        // 去除v-on/@后的事件名称
+        name = name.replace(onRE, ""); //@change="onChange"    name为change
+        isDynamic = dynamicArgRE.test(name); // <div :a-prop.sync="a" @[change]="hh">okok</div> [change]包裹的动态事件名  下面slice后重新赋值去除[] 只留下change
         if (isDynamic) {
           name = name.slice(1, -1);
         }
-        addHandler(el, name, value, modifiers, false, warn, list[i], isDynamic);
+        // once的话 (isDynamic代表是否是[]包裹的动态属性)
+        // isDynamic为true
+        // <span :[data.prop].sync="map.a.a"  @[a].once="hh">3</span>
+        // 处理后的 是isDynamic的 el.events:{ _p(a,"~"): {value: 'hh', dynamic: true} }
+        // isDynamic为false
+        // <div :a-prop.sync="a" @change.on="hh">okok</div>
+        // 处理后的 是isDynamic的 el.events:{ ~change: {value: 'hh', dynamic: false} }
+        addHandler(
+          el,
+          name,
+          value,
+          modifiers,
+          false,
+          () => {},
+          list[i],
+          isDynamic
+        );
       } else {
+        // 处理指令的地方
         // normal directives
-        name = name.replace(dirRE, "");
+        // 例: <span v-html="hh"></span>
+        name = name.replace(dirRE, ""); // html
         // parse arg
         const argMatch = name.match(argRE);
-        let arg = argMatch && argMatch[1];
+        let arg = argMatch && argMatch[1]; // <template v-slot:default="{row}"></template> 匹配v-slot: default这种指令:符号后的default
         isDynamic = false;
         if (arg) {
           name = name.slice(0, -(arg.length + 1));
@@ -403,44 +478,30 @@ function processAttrs(el) {
             isDynamic = true;
           }
         }
+        // el.directives = [ {name: 'html', rawName: 'v-html', value: 'hh', arg: null, isDynamicArg: false}]
         addDirective(
           el,
-          name,
-          rawName,
+          name, // html
+          rawName, // 未经处理的全名称 v-html
           value,
           arg,
           isDynamic,
           modifiers,
           list[i]
         );
-        if (process.env.NODE_ENV !== "production" && name === "model") {
-          checkForAliasModel(el, value);
-        }
       }
     } else {
-      // literal attribute
-      if (process.env.NODE_ENV !== "production") {
-        const res = parseText(value, delimiters);
-        if (res) {
-          warn(
-            `${name}="${value}": ` +
-              "Interpolation inside attributes has been removed. " +
-              "Use v-bind or the colon shorthand instead. For example, " +
-              'instead of <div id="{{ val }}">, use <div :id="val">.',
-            list[i]
-          );
-        }
-      }
+      // literal attribute  常规属性  标签自身属性  添加进el.attrs
       addAttr(el, name, JSON.stringify(value), list[i]);
       // #6887 firefox doesn't update muted state if set via attribute
       // even immediately after element creation
-      if (
-        !el.component &&
-        name === "muted" &&
-        platformMustUseProp(el.tag, el.attrsMap.type, name)
-      ) {
-        addProp(el, name, "true", list[i]);
-      }
+      // if (
+      //   !el.component &&
+      //   name === "muted" &&
+      //   platformMustUseProp(el.tag, el.attrsMap.type, name)
+      // ) {
+      //   addProp(el, name, "true", list[i]);
+      // }
     }
   }
 }
@@ -453,5 +514,27 @@ function parseModifiers(name) {
       ret[m.slice(1)] = true;
     });
     return ret; // {sync: true}
+  }
+}
+
+function processIfConditions(el, parent) {
+  const prev = findPrevElement(parent.children);
+  if (prev && prev.if) {
+    addIfCondition(prev, {
+      exp: el.elseif,
+      block: el,
+    });
+  }
+}
+
+function findPrevElement(children) {
+  let i = children.length;
+  // console.log(children, "22");
+  while (i--) {
+    if (children[i].type === 1) {
+      return children[i];
+    } else {
+      children.pop();
+    }
   }
 }
