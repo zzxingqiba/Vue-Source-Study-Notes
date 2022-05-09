@@ -199,6 +199,7 @@ function needsNormalization(el) {
   return el.for !== undefined || el.tag === "template" || el.tag === "slot";
 }
 
+// 这里静态的与动态的属性会有个JOSN.stringify()的操作  注意下
 export function genData(el, state) {
   let data = "{";
 
@@ -225,7 +226,7 @@ export function genData(el, state) {
   // record original tag name for components using "is" attribute
   if (el.component) {
     data += `tag:"${el.tag}",`;
-  }
+  }  
   // module data generation functions  // 处理class style
   for (let i = 0; i < state.dataGenFns.length; i++) {
     data += state.dataGenFns[i](el);

@@ -1,4 +1,6 @@
 export * from "./element";
+export * from './attrs'
+export * from './class'
 
 export function query(el) {
   if (typeof el === "string") {

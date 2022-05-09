@@ -3,12 +3,23 @@ import VNode, { cloneVNode } from "./vnode";
 
 const hooks = ["create", "activate", "update", "remove", "destroy"];
 
+export const emptyNode = new VNode("", {}, []);
+
 export function createPatchFunction(backend) {
   let i, j;
   const cbs = {};
 
   // nodeOps操作节点的一些方法 来自src\platforms\web\runtime\node-ops.js
   const { modules, nodeOps } = backend;
+
+  for (i = 0; i < hooks.length; ++i) {
+    cbs[hooks[i]] = [];
+    for (j = 0; j < modules.length; ++j) {
+      if (isDef(modules[j][hooks[i]])) {
+        cbs[hooks[i]].push(modules[j][hooks[i]]);
+      }
+    }
+  }
 
   function emptyNodeAt(elm) {
     // elm为el的DOM节点
@@ -63,6 +74,17 @@ export function createPatchFunction(backend) {
     return isDef(vnode.tag);
   }
 
+  function invokeCreateHooks(vnode, insertedVnodeQueue) {
+    for (let i = 0; i < cbs.create.length; ++i) {
+      cbs.create[i](emptyNode, vnode);
+    }
+    i = vnode.data.hook; // Reuse variable
+    if (isDef(i)) {
+      if (isDef(i.create)) i.create(emptyNode, vnode);
+      if (isDef(i.insert)) insertedVnodeQueue.push(vnode);
+    }
+  }
+
   function initComponent(vnode, insertedVnodeQueue) {
     if (isDef(vnode.data.pendingInsert)) {
       insertedVnodeQueue.push.apply(
@@ -101,9 +123,10 @@ export function createPatchFunction(backend) {
       // 往下执行会发现这里的用意是为了让嵌套的render函数创建一个和自身元素一样的标签 应该是为了这个函数的一个判断条件做一个标识吧
       vnode.elm = nodeOps.createElement(tag, vnode);
       createChildren(vnode, children, insertedVnodeQueue);
-      // if (isDef(data)) { // 暂不考虑data情况 先把节点搞出来 属性先暂搁
-      //   invokeCreateHooks(vnode, insertedVnodeQueue)
-      // }
+      // 为节点添加属性 style attrs class之类的
+      if (isDef(data)) {
+        invokeCreateHooks(vnode, insertedVnodeQueue);
+      }
       // refElm为 el的nextSibling可返回某个元素之后紧跟的节点 这个参数只有第一次的时候传入了 createChildren时不需要，就想知道el一个外节点就好了 render里面的知道也没意义
       insert(parentElm, vnode.elm, refElm);
     } else {
@@ -129,6 +152,21 @@ export function createPatchFunction(backend) {
       }
     }
   }
+
+  // function removeVnodes(vnodes, startIdx, endIdx) {
+  //   for (; startIdx <= endIdx; ++startIdx) {
+  //     const ch = vnodes[startIdx];
+  //     if (isDef(ch)) {
+  //       if (isDef(ch.tag)) {
+  //         removeAndInvokeRemoveHook(ch);
+  //         invokeDestroyHook(ch);
+  //       } else {
+  //         // Text node
+  //         removeNode(ch.elm);
+  //       }
+  //     }
+  //   }
+  // }
 
   // 参数来自src\core\instance\lifecycle.js  这个函数主要除里vnode.elm为真实节点
   return function patch(oldVnode, vnode, hydrating, removeOnly) {
@@ -171,7 +209,8 @@ export function createPatchFunction(backend) {
       // destroy old node  删除旧节点
       // if (isDef(parentElm)) {
       //   removeVnodes([oldVnode], 0, 0)
-      // } else if (isDef(oldVnode.tag)) {
+      // }
+      // else if (isDef(oldVnode.tag)) {
       //   invokeDestroyHook(oldVnode)
       // }
     }

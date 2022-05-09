@@ -9,9 +9,7 @@
 </head>
 <body>
   <div id="hh">
-    <span v-for="(item,index) in [1,2,3,4]">
-      <span>{{item}}</span>
-    </span>
+    <span :class="[{'name':true},[true && name]]">222</span>
   </div>
   <script>
     const vm = new Vue({

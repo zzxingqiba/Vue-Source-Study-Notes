@@ -22,6 +22,10 @@ const stripParensRE = /^\(|\)$/g;
 const modifierRE = /\.[^.\]]+(?=[^\]]*$)/g;
 const dynamicArgRE = /^\[.*\]$/;
 
+let transforms;
+let preTransforms;
+let postTransforms;
+
 let decoder;
 const decodeHTMLCached = cached(function decode(html) {
   decoder = decoder || document.createElement("div");
@@ -125,7 +129,14 @@ function makeAttrsMap(attrs) {
   return map;
 }
 
+export function pluckModuleFunction(modules, key) {
+  return modules ? modules.map((m) => m[key]).filter((_) => _) : [];
+}
+
 export function parse(template, options) {
+  transforms = pluckModuleFunction(options.modules, "transformNode");
+  postTransforms = pluckModuleFunction(options.modules, "postTransformNode");
+
   const stack = [];
   let root;
   let currentParent;
@@ -294,10 +305,10 @@ export function processElement(element, options) {
   processRef(element);
   // processSlotContent(element);
   // processSlotOutlet(element);
-  // processComponent(element);
-  // for (let i = 0; i < transforms.length; i++) {
-  //   element = transforms[i](element, options) || element;
-  // }
+  // processComponent(element); 
+  for (let i = 0; i < transforms.length; i++) {
+    element = transforms[i](element, options) || element;
+  }
   processAttrs(element);
   return element;
 }

@@ -18,6 +18,7 @@ export const createCompiler = createCompilerCreator(function baseCompile(
   // 1.在每次重新渲染时为它们创建新的节点;2. 在打补丁过程中完全跳过它们。
   optimize(ast, options);
   const code = generate(ast, options);
+  console.log(code)
   return {
     ast,
     render: code.render,
