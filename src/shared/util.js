@@ -148,3 +148,16 @@ export function genStaticKeys(modules) {
     }, [])
     .join(",");
 }
+
+/**
+ * Merge an Array of Objects into a single Object.
+ */
+export function toObject(arr) {
+  const res = {};
+  for (let i = 0; i < arr.length; i++) {
+    if (arr[i]) {
+      extend(res, arr[i]);
+    }
+  }
+  return res;
+}
