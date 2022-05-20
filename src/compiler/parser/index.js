@@ -305,7 +305,7 @@ export function processElement(element, options) {
   processRef(element);
   // processSlotContent(element);
   // processSlotOutlet(element);
-  // processComponent(element); 
+  // processComponent(element);
   for (let i = 0; i < transforms.length; i++) {
     element = transforms[i](element, options) || element;
   }
@@ -452,16 +452,16 @@ function processAttrs(el) {
         // v-on
         // 去除v-on/@后的事件名称
         name = name.replace(onRE, ""); //@change="onChange"    name为change
-        isDynamic = dynamicArgRE.test(name); // <div :a-prop.sync="a" @[change]="hh">okok</div> [change]包裹的动态事件名  下面slice后重新赋值去除[] 只留下change
+        isDynamic = dynamicArgRE.test(name); // <div @[change]="hh">okok</div> [change]包裹的动态事件名  下面slice后重新赋值去除[] 只留下change
         if (isDynamic) {
           name = name.slice(1, -1);
         }
         // once的话 (isDynamic代表是否是[]包裹的动态属性)
         // isDynamic为true
-        // <span :[data.prop].sync="map.a.a"  @[a].once="hh">3</span>
+        // <span @[a].once="hh">3</span>
         // 处理后的 是isDynamic的 el.events:{ _p(a,"~"): {value: 'hh', dynamic: true} }
         // isDynamic为false
-        // <div :a-prop.sync="a" @change.on="hh">okok</div>
+        // <div @change.on="hh">okok</div>
         // 处理后的 是isDynamic的 el.events:{ ~change: {value: 'hh', dynamic: false} }
         addHandler(
           el,

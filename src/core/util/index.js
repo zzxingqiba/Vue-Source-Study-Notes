@@ -1,3 +1,6 @@
 export * from '../../shared/util'
 export * from './env'
 export * from './options'
+export * from './lang'
+export * from './error'
+export * from './next-tick'

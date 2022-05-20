@@ -153,20 +153,58 @@ export function createPatchFunction(backend) {
     }
   }
 
-  // function removeVnodes(vnodes, startIdx, endIdx) {
-  //   for (; startIdx <= endIdx; ++startIdx) {
-  //     const ch = vnodes[startIdx];
-  //     if (isDef(ch)) {
-  //       if (isDef(ch.tag)) {
-  //         removeAndInvokeRemoveHook(ch);
-  //         invokeDestroyHook(ch);
-  //       } else {
-  //         // Text node
-  //         removeNode(ch.elm);
-  //       }
-  //     }
-  //   }
-  // }
+  function removeVnodes(vnodes, startIdx, endIdx) {
+    for (; startIdx <= endIdx; ++startIdx) {
+      const ch = vnodes[startIdx];
+      if (isDef(ch)) {
+        if (isDef(ch.tag)) {
+          removeAndInvokeRemoveHook(ch);
+          // invokeDestroyHook(ch);
+        } else {
+          // Text node
+          removeNode(ch.elm);
+        }
+      }
+    }
+  }
+
+  function removeAndInvokeRemoveHook(vnode, rm) {
+    // if (isDef(rm) || isDef(vnode.data)) {
+    //   let i
+    //   const listeners = cbs.remove.length + 1
+    //   if (isDef(rm)) {
+    //     // we have a recursively passed down rm callback
+    //     // increase the listeners count
+    //     rm.listeners += listeners
+    //   } else {
+    //     // directly removing
+    //     rm = createRmCb(vnode.elm, listeners)
+    //   }
+    //   // recursively invoke hooks on child component root node
+    //   if (isDef(i = vnode.componentInstance) && isDef(i = i._vnode) && isDef(i.data)) {
+    //     removeAndInvokeRemoveHook(i, rm)
+    //   }
+    //   for (i = 0; i < cbs.remove.length; ++i) {
+    //     cbs.remove[i](vnode, rm)
+    //   }
+    //   if (isDef(i = vnode.data.hook) && isDef(i = i.remove)) {
+    //     i(vnode, rm)
+    //   } else {
+    //     rm()
+    //   }
+    // } else {
+
+    removeNode(vnode.elm);
+    // }
+  }
+
+  function removeNode (el) {
+    const parent = nodeOps.parentNode(el)
+    // element may have already been removed due to v-html / v-text
+    if (isDef(parent)) {
+      nodeOps.removeChild(parent, el)
+    }
+  }
 
   // 参数来自src\core\instance\lifecycle.js  这个函数主要除里vnode.elm为真实节点
   return function patch(oldVnode, vnode, hydrating, removeOnly) {
@@ -207,9 +245,9 @@ export function createPatchFunction(backend) {
       );
 
       // destroy old node  删除旧节点
-      // if (isDef(parentElm)) {
-      //   removeVnodes([oldVnode], 0, 0)
-      // }
+      if (isDef(parentElm)) {
+        removeVnodes([oldVnode], 0, 0);
+      }
       // else if (isDef(oldVnode.tag)) {
       //   invokeDestroyHook(oldVnode)
       // }

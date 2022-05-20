@@ -1,4 +1,6 @@
 export const inBrowser = typeof window !== 'undefined'
+// can we use __proto__?
+export const hasProto = '__proto__' in {}
 
 /* istanbul ignore next */
 export function isNative (Ctor) {

@@ -9,17 +9,33 @@
 </head>
 <body>
   <div id="hh">
-    <span :style="[{display: 'flex'},{color:'red'}]">222</span>
+    <span id="xx" :style="[{display: 'flex'},{color:'red'}]" @click="aa" @change="aa">{{zz}}</span>
   </div>
   <script>
     const vm = new Vue({
       el: '#hh',
       data(){
         return {
-          name: 'hh',
+          zz: {
+            name:[{a:1},[2,3]]
+          },
+          a:1
+        }
+      },
+      methods:{
+        aa(){
+          // this.a = 2
+          // this.zz = {
+          //   name:'2233'
+          // }
+          // this.$nextTick(()=>{
+          //   console.log(document.getElementById('xx').innerHTML,'xxx')
+          // })
+          this.zz.name[1].push('3')
         }
       }
     })
+
   </script>
 </body>
 </html>

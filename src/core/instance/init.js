@@ -2,6 +2,7 @@ import { initProxy } from "./proxy";
 import { initRender } from "./render";
 import { mergeOptions } from "../util/index";
 import { initLifecycle } from "./lifecycle";
+import { initState } from './state'
 
 let uid = 0;
 export function initMixin(Vue) {
@@ -22,10 +23,12 @@ export function initMixin(Vue) {
     // expose real self
     vm._renderProxy = vm;
     vm._self = vm;
+    initProxy(vm);
 
     initLifecycle(vm);
-    initProxy(vm);
     initRender(vm);
+    // callHook(vm, 'beforeCreate')
+    initState(vm)
     if (vm.$options.el) {
       vm.$mount(vm.$options.el);
     }

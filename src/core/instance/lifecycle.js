@@ -67,7 +67,18 @@ export function mountComponent(vm, el, hydrating) {
     // 此处是在遍历render函数节点 vm._render()返回的处理好的render(options传入的render)总的vnode层级
     vm._update(vm._render(), hydrating);
   };
-  console.log("暂时调用充当Watch", updateComponent());
-  new Watcher(vm, updateComponent, noop, {}, true);
+  new Watcher(
+    vm,
+    updateComponent,
+    noop,
+    {
+      before() {
+        // if (vm._isMounted && !vm._isDestroyed) {
+        //   callHook(vm, "beforeUpdate");
+        // }
+      },
+    },
+    true
+  );
   return vm;
 }

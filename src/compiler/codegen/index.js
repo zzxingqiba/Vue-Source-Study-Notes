@@ -1,6 +1,7 @@
 import { camelize, no, extend } from "../../shared/util";
 import baseDirectives from "../directives/index";
 import { pluckModuleFunction } from "../helpers";
+import { genHandlers } from "./events";
 
 export class CodegenState {
   constructor(options) {
@@ -226,7 +227,7 @@ export function genData(el, state) {
   // record original tag name for components using "is" attribute
   if (el.component) {
     data += `tag:"${el.tag}",`;
-  }  
+  }
   // module data generation functions  // 处理class style
   for (let i = 0; i < state.dataGenFns.length; i++) {
     data += state.dataGenFns[i](el);
@@ -240,12 +241,12 @@ export function genData(el, state) {
     data += `domProps:${genProps(el.props)},`;
   }
   // event handlers
-  // if (el.events) {
-  //   data += `${genHandlers(el.events, false)},`;
-  // }
-  // if (el.nativeEvents) {
-  //   data += `${genHandlers(el.nativeEvents, true)},`;
-  // }
+  if (el.events) {
+    data += `${genHandlers(el.events, false)},`;
+  }
+  if (el.nativeEvents) {
+    data += `${genHandlers(el.nativeEvents, true)},`;
+  }
   // slot target
   // only for non-scoped slots
   if (el.slotTarget && !el.slotScope) {

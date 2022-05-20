@@ -26,6 +26,10 @@ export function insertBefore (parentNode, newNode, referenceNode) {
   parentNode.insertBefore(newNode, referenceNode)
 }
 
+export function removeChild (node, child) {
+  node.removeChild(child)
+}
+
 export function appendChild (node, child) {
   node.appendChild(child)
 }

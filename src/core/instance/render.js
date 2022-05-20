@@ -1,6 +1,8 @@
 import { createElement } from "../vdom/create-element";
 import { installRenderHelpers } from "./render-helpers/index";
 
+import { nextTick } from "../util/index";
+
 // initRender函数已经在src\core\instance\init.js引入被调用赋值 发生在$mount之前
 export function initRender(vm) {
   vm._vnode = null; // the root of the child tree
@@ -18,7 +20,7 @@ export function renderMixin(Vue) {
   installRenderHelpers(Vue.prototype);
 
   Vue.prototype.$nextTick = function (fn) {
-    console.log(fn, "$nextTick");
+    return nextTick(fn, this);
   };
   Vue.prototype._render = function () {
     const vm = this;
