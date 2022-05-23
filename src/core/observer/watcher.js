@@ -50,7 +50,7 @@ export default class Watcher {
       //   traverse(value);
       // }
       popTarget();
-      // this.cleanupDeps();
+      this.cleanupDeps();
     }
     return value;
   }
@@ -69,6 +69,16 @@ export default class Watcher {
         // 向dep实例中的subs数组添加当前watcher
         dep.addSub(this);
       }
+    }
+  }
+
+  /**
+   * Depend on all deps collected by this watcher.
+   */
+  depend() {
+    let i = this.deps.length;
+    while (i--) {
+      this.deps[i].depend();
     }
   }
 
@@ -119,6 +129,15 @@ export default class Watcher {
       //   }
       // }
     }
+  }
+
+  /**
+   * Evaluate the value of the watcher.
+   * This only gets called for lazy watchers.
+   */
+  evaluate() {
+    this.value = this.get();
+    this.dirty = false;
   }
 
   /**
