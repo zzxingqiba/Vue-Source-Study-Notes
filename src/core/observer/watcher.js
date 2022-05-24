@@ -1,5 +1,6 @@
 import Dep, { pushTarget, popTarget } from "./dep";
 import { queueWatcher } from "./scheduler";
+import { isObject } from "../util/index";
 
 let uid = 0;
 
@@ -33,6 +34,10 @@ export default class Watcher {
     // parse expression for getter
     if (typeof expOrFn === "function") {
       this.getter = expOrFn;
+    } else {
+      this.getter = function (vm) {
+        return this[expOrFn];
+      };
     }
     this.value = this.lazy ? undefined : this.get();
   }
@@ -44,6 +49,7 @@ export default class Watcher {
       value = this.getter.call(vm, vm);
     } catch (e) {
     } finally {
+      // 递归遍历一个对象来调用所有转换的getter，这样对象内的每个嵌套属性都被收集为一个“深度”依赖。 先不考虑了  就是添加逐个wacther
       // "touch" every property so they are all tracked as
       // dependencies for deep watching
       // if (this.deep) {
@@ -104,30 +110,23 @@ export default class Watcher {
   run() {
     if (this.active) {
       const value = this.get();
-      // if (
-      //   value !== this.value ||
-      //   // Deep watchers and watchers on Object/Arrays should fire even
-      //   // when the value is the same, because the value may
-      //   // have mutated.
-      //   isObject(value) ||
-      //   this.deep
-      // ) {
-      //   // set new value
-      //   const oldValue = this.value;
-      //   this.value = value;
-      //   if (this.user) {
-      //     const info = `callback for watcher "${this.expression}"`;
-      //     invokeWithErrorHandling(
-      //       this.cb,
-      //       this.vm,
-      //       [value, oldValue],
-      //       this.vm,
-      //       info
-      //     );
-      //   } else {
-      //     this.cb.call(this.vm, value, oldValue);
-      //   }
-      // }
+      if (
+        value !== this.value ||
+        // Deep watchers and watchers on Object/Arrays should fire even
+        // when the value is the same, because the value may
+        // have mutated.
+        isObject(value) ||
+        this.deep
+      ) {
+        // set new value
+        const oldValue = this.value;
+        this.value = value;
+        if (this.user) {
+          this.cb.apply(this.vm, [value, oldValue]);
+        } else {
+          this.cb.call(this.vm, value, oldValue);
+        }
+      }
     }
   }
 

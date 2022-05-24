@@ -28,15 +28,13 @@
           return this.zz.name + this.a
         }
       },
+      watch:{
+        a(val,oldVal){
+          console.log(val,oldVal)
+        }
+      },
       methods:{
         aa(){
-          // this.a = 2
-          // this.zz = {
-          //   name:'2233'
-          // }
-          // this.$nextTick(()=>{
-          //   console.log(document.getElementById('xx').innerHTML,'xxx')
-          // })
           this.a = 3
         }
       }
