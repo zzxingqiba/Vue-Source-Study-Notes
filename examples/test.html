@@ -10,6 +10,8 @@
 <body>
   <div id="hh">
     <my-button></my-button>
+    <div @click="onClick">{{a}}</div>
+    <div>{{computedA}}</div>
   </div>
   <script>
     Vue.component('mx-button', {
@@ -30,6 +32,24 @@
           a:1
         }
       },
+      computed:{
+        computedA({a}){
+          return this.a + 'hh'
+        }
+      },
+      watch:{
+        computedA(val,oldVal){
+          console.log(val,oldVal)
+        },
+        a(val,oldVal){
+          console.log(val,oldVal)
+        },
+      },
+      methods:{
+        onClick(){
+          this.a = 4
+        }
+      }
     })
   </script>
 </body>
