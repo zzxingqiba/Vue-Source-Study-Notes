@@ -5,7 +5,9 @@ import {
   isPlainObject,
   hasOwn,
   camelize,
+  extend,
 } from "../../shared/util";
+import { ASSET_TYPES } from "../../shared/constants";
 
 /**
  * Option overwriting strategies are functions that handle
@@ -125,3 +127,23 @@ export function resolveAsset(options, type, id, warnMissing) {
   const res = assets[id] || assets[camelizedId] || assets[PascalCaseId];
   return res;
 }
+
+/**
+ * Assets
+ *
+ * When a vm is present (instance creation), we need to do
+ * a three-way merge between constructor options, instance
+ * options and parent options.
+ */
+function mergeAssets(parentVal, childVal, vm, key) {
+  const res = Object.create(parentVal || null);
+  if (childVal) {
+    return extend(res, childVal);
+  } else {
+    return res;
+  }
+}
+
+ASSET_TYPES.forEach(function (type) {
+  strats[type + "s"] = mergeAssets;
+});

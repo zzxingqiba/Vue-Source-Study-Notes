@@ -17,7 +17,6 @@ const componentVNodeHooks = {
         vnode,
         activeInstance
       ));
-
       // $mount为src\platforms\web\entry-runtime-with-compiler.js的$mount方法
       child.$mount(hydrating ? vnode.elm : undefined, hydrating);
     }

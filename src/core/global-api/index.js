@@ -1,5 +1,6 @@
 import { ASSET_TYPES } from "../../shared/constants";
 import { initExtend } from './extend'
+import { initAssetRegisters } from './assets'
 
 export function initGlobalAPI(Vue) {
   Vue.options = Object.create(null);
@@ -9,4 +10,6 @@ export function initGlobalAPI(Vue) {
   Vue.options._base = Vue;
 
   initExtend(Vue)
+  // 全局组件 指令 过滤器定义
+  initAssetRegisters(Vue)
 }

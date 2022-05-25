@@ -9,37 +9,28 @@
 </head>
 <body>
   <div id="hh">
-    <span id="xx" :style="[{display: 'flex'},{color:'red'}]" @click="aa" @change="aa">{{xx}}</span>
+    <my-button></my-button>
   </div>
   <script>
+    Vue.component('mx-button', {
+      template: '<button>全局组件</button>'
+    })
     const vm = new Vue({
       el: '#hh',
+      components:{
+        'my-button': {
+          template: '<button>内部组件</button>'
+        }
+      },
       data(){
         return {
           zz: {
             name:'hh'
           },
           a:1
-          
         }
       },
-      computed:{
-        xx(){
-          return this.zz.name + this.a
-        }
-      },
-      watch:{
-        a(val,oldVal){
-          console.log(val,oldVal)
-        }
-      },
-      methods:{
-        aa(){
-          this.a = 3
-        }
-      }
     })
-
   </script>
 </body>
 </html>

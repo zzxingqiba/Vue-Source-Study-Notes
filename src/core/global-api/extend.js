@@ -19,6 +19,7 @@ export function initExtend(Vue) {
     Sub.prototype = Object.create(Super.prototype);
     Sub.prototype.constructor = Sub;
     Sub.cid = cid++;
+    // 如果是组件的话 这里会处理一个原型链\src\core\util\options.js  使全局组件作为当前components的原型链上的属性
     Sub.options = mergeOptions(Super.options, extendOptions);
     Sub["super"] = Super;
     return Sub;

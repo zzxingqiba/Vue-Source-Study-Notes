@@ -42,9 +42,21 @@ export function lifecycleMixin(Vue) {
     const prevVnode = vm._vnode;
     const restoreActiveInstance = setActiveInstance(vm);
     vm._vnode = vnode;
-
     if (!prevVnode) {
       // initial render
+      // const vm = new Vue({
+      //   el: '#hh',
+      //   components:{
+      //     'my-button': {
+      //       template: '<button>内部组件</button>'
+      //     }
+      //   },
+      // })
+      // 组件的编译到这里vm.$el为undefined 此处的vm为组件实例 例如：vue-component-2-my-button 因为在解析模板触发了组件的init 进而组件重新调用了$mount
+      // 这里的vnode是button的vnode  因为组件$mount解析的是他自己的template  所以此处vm.__patch__(vm.$el, vnode, hydrating, false);返回的vnode.elm是button DOM
+      // 所以这里给组件的实例添加了$el为button的DOM  在src\core\vdom\patch.js中
+      // vnode.componentInstance就相当于button节点  vnode就是组件 添加了个属性而已  调用$mount是vnode.componentInstance调的  所以下面是取vnode.componentInstance.$el
+      // 调用完组件init  操作了vnode.elm = vnode.componentInstance.$el;  而后将vnode.elm插入到了之前保存的DOM中（不是组件哦 是组件的父亲节点）所以最后DOM结构看不见你的自定义组件标签
       vm.$el = vm.__patch__(vm.$el, vnode, hydrating, false);
     } else {
       // updates
