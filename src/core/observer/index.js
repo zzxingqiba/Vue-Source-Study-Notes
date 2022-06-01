@@ -1,5 +1,5 @@
 import Dep from "./dep";
-import { hasOwn, isObject, def, hasProto } from "../util/index";
+import { hasOwn, isObject, def, hasProto, isValidArrayIndex } from "../util/index";
 import VNode from "../vdom/vnode";
 
 import { arrayMethods } from "./array";
@@ -117,7 +117,7 @@ export function defineReactive(obj, key, val, customSetter, shallow) {
   const getter = property && property.get;
   const setter = property && property.set;
   if ((!getter || setter) && arguments.length === 2) {
-    // 取到传过来对象的值
+    // 取到传过来对象的值  (非$set进来的)
     val = obj[key];
   }
   // 防止val为引用类型的值  递归调用observe 确保重写每一个对象属性
@@ -169,6 +169,52 @@ export function defineReactive(obj, key, val, customSetter, shallow) {
       dep.notify();
     },
   });
+}
+
+/**
+ * Set a property on an object. Adds the new property and
+ * triggers change notification if the property doesn't
+ * already exist.
+ */
+ export function set (target, key, val) {
+   // $set处理数组为响应式 这里相当于调用了数组的splice方法
+  if (Array.isArray(target) && isValidArrayIndex(key)) {
+    target.length = Math.max(target.length, key)
+    target.splice(key, 1, val)
+    return val
+  }
+  // 如果key在target中 那说明已经收集过依赖的  直接赋值走属性的set方法即可
+  if (key in target && !(key in Object.prototype)) {
+    target[key] = val
+    return val
+  }
+  const ob = target.__ob__
+
+  // 不允许给data直接使用$set   this.$set(this.$data, 'a', 1)
+  if (target._isVue || (ob && ob.vmCount)) {
+    return val
+  }
+  // 非响应式数据 不处理
+  if (!ob) {
+    target[key] = val
+    return val
+  }
+  // target == ob.value
+
+  // 这里有一个有趣的现象  像下面这样的如果单纯加一个未响应式的数据 界面不会有变化 但是下方进行了一步$set操作 界面因此变成都显示
+  // 不但是$set有这种效果 改变name  也会都显示值
+  // 界面中   {{zz}}
+  // data中   zz: { name: 'a' }
+  // method中 onClick(){
+  //   this.zz.x = 1
+  //   this.$set(this.zz,'b',1)
+  // },
+  // 走到这里一定为对象切对象有__ob__属性 相当于跳过了walk方法 defineReactive方法对属性进行监视 
+  // 通过ob.dep.notify()去调用对应的watcher刷新视图  已收集依赖的属性不会再收集  刚才新加入的属性继续收集依赖  所以新添加的数据就变成响应式了 之后在其他地方修改 也会随之刷新视图
+  defineReactive(ob.value, key, val)
+  // 每个对象上在初始化时都保存了dep
+  ob.dep.notify()
+  return val
 }
 
 /**

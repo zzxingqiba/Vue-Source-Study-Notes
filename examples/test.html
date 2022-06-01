@@ -10,8 +10,8 @@
 <body>
   <div id="hh">
     <my-button></my-button>
-    <div @click="onClick">{{a}}</div>
-    <div>{{computedA}}</div>
+    <div @click="onClick">{{zz}}</div>
+    <div @click="xx">{{computedA}}</div>
   </div>
   <script>
     Vue.component('mx-button', {
@@ -29,7 +29,8 @@
           zz: {
             name:'hh'
           },
-          a:1
+          a:1,
+          x: { a: { b: 1, c: [ 1, { d: 1 }, [ 1, 2 ] ] } }
         }
       },
       computed:{
@@ -47,7 +48,15 @@
       },
       methods:{
         onClick(){
-          this.a = 4
+          // this.a = 4
+          // this.zz.b = 1
+          // console.log(this)
+          this.zz.x = 1
+          // this.zz.name = '2'
+          this.$set(this.zz, 'b', 2)
+        },
+        xx(){
+          this.x.a
         }
       }
     })

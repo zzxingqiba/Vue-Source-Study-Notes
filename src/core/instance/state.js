@@ -1,5 +1,5 @@
 import { noop, isReserved, isPlainObject } from "../util/index";
-import { observe } from "../observer/index";
+import { set,observe } from "../observer/index";
 import Dep, { pushTarget, popTarget } from "../observer/dep";
 import Watcher from "../observer/watcher";
 
@@ -216,7 +216,7 @@ export function stateMixin(Vue) {
   Object.defineProperty(Vue.prototype, "$data", dataDef);
   Object.defineProperty(Vue.prototype, "$props", propsDef);
 
-  // Vue.prototype.$set = set
+  Vue.prototype.$set = set
   // Vue.prototype.$delete = del
 
   Vue.prototype.$watch = function (expOrFn, cb, options) {

@@ -4,6 +4,7 @@ import { isObject } from "../util/index";
 
 let uid = 0;
 
+//  将watcher设想为当前组件
 //  new Watcher(vm, updateComponent, noop, {}, true);
 export default class Watcher {
   constructor(vm, expOrFn, cb, options, isRenderWatcher) {
