@@ -98,6 +98,7 @@ export function parseFor(exp) {
 export function processFor(el) {
   //exp 取到v-for的值
   let exp;
+  // v-for getAndRemoveAttr 从attrsList中删除 只留存在attrsMap中
   if ((exp = getAndRemoveAttr(el, "v-for"))) {
     const res = parseFor(exp);
     if (res) {
