@@ -15,7 +15,7 @@ export function initExtend(Vue) {
     const Sub = function VueComponent(options) {
       this._init(options);
     };
-    // 这一步其实是想 拥有继承关系 想让组件可以使用vue原型上的方法 比如$mount $emit $nextTick之类的
+    // 这一步其实是想 拥有继承关系 想让组件可以使用vue原型上的方法 比如$mount $emit $nextTick之类的(顺带一提VueComponent.prototype.__proto__ === Vue.prototype)
     Sub.prototype = Object.create(Super.prototype);
     Sub.prototype.constructor = Sub;
     Sub.cid = cid++;

@@ -43,6 +43,7 @@ export function addAttr(el, name, value, range, dynamic) {
 // doesn't get processed by processAttrs.
 // By default it does NOT remove it from the map (attrsMap) because the map is
 // needed during codegen.
+// 从attrsList中删除
 export function getAndRemoveAttr(el, name, removeFromMap) {
   let val;
   if ((val = el.attrsMap[name]) != null) {
