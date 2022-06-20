@@ -206,7 +206,11 @@ export function genData(el, state) {
 
   // directives first.
   // directives may mutate the el's other properties before they are generated.
+
+  // 看下v-model如何处理
+  // "{directives:[{name:"model",rawName:"v-model",value:(text),expression:"text"}],"
   const dirs = genDirectives(el, state);
+  
   if (dirs) data += dirs + ",";
 
   // key
@@ -292,6 +296,7 @@ function genDirectives(el, state) {
   let res = "directives:[";
   let hasRuntime = false;
   let i, l, dir, needRuntime;
+  debugger
   for (i = 0, l = dirs.length; i < l; i++) {
     dir = dirs[i];
     needRuntime = true;
@@ -299,10 +304,12 @@ function genDirectives(el, state) {
     if (gen) {
       // compile-time directive that manipulates AST.
       // returns true if it also needs a runtime counterpart.
+      // 进入到了src\platforms\web\compiler\directives\model.js
       needRuntime = !!gen(el, dir, state.warn);
     }
     if (needRuntime) {
       hasRuntime = true;
+      // "directives:[{name:"model",rawName:"v-model",value:(text),expression:"text"},"
       res += `{name:"${dir.name}",rawName:"${dir.rawName}"${
         dir.value
           ? `,value:(${dir.value}),expression:${JSON.stringify(dir.value)}`

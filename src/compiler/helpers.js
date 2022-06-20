@@ -61,6 +61,13 @@ export function getAndRemoveAttr(el, name, removeFromMap) {
   return val;
 }
 
+// add a raw attr (use this in preTransforms)
+// 处理input的v-model时调用的
+export function addRawAttr (el, name, value, range) {
+  el.attrsMap[name] = value
+  el.attrsList.push(rangeSetItem({ name, value }, range))
+}
+
 export function getBindingAttr(el, name, getStatic) {
   // el.attrsList中key放入el.attrsMap中 并删除el.attrsList中的key
   const dynamicValue =
@@ -164,4 +171,10 @@ function rangeSetItem(item, range) {
     }
   }
   return item;
+}
+
+
+export function addProp (el, name, value, range, dynamic) {
+  (el.props || (el.props = [])).push(rangeSetItem({ name, value, dynamic }, range))
+  el.plain = false
 }

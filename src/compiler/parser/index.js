@@ -136,8 +136,9 @@ export function pluckModuleFunction(modules, key) {
 
 export function parse(template, options) {
   transforms = pluckModuleFunction(options.modules, "transformNode");
+  preTransforms = pluckModuleFunction(options.modules, 'preTransformNode')
   postTransforms = pluckModuleFunction(options.modules, "postTransformNode");
-
+  
   const stack = [];
   let root;
   let currentParent;
@@ -215,8 +216,15 @@ export function parse(template, options) {
   }
 
   parseHTML(template, {
+    isUnaryTag: options.isUnaryTag,
     start(tag, attrs, unary, start, end) {
       let element = createASTElement(tag, attrs, currentParent);
+
+      // apply pre-transforms
+      for (let i = 0; i < preTransforms.length; i++) {
+        element = preTransforms[i](element, options) || element
+      }
+
       // 处理下 v-for v-if v-once
       if (true) {
         // structural directives
@@ -232,6 +240,8 @@ export function parse(template, options) {
       if (!unary) {
         currentParent = element;
         stack.push(element);
+      } else {
+        closeElement(element)
       }
     },
     end(end) {
@@ -292,7 +302,6 @@ export function parse(template, options) {
   });
   return root;
 }
-
 export function processElement(element, options) {
   // 此处element为当前结束标签</div>  并非出栈后取值的currentParent标签
 

@@ -34,6 +34,7 @@ function decodeAttr(value, shouldDecodeNewlines) {
 }
 export function parseHTML(html, options) {
   const stack = [];
+  const isUnaryTag = options.isUnaryTag || no
   let index = 0;
   let last, lastTag;
   while (html) {
@@ -159,6 +160,7 @@ export function parseHTML(html, options) {
   }
 
   function handleStartTag(match) {
+
     const tagName = match.tagName;
     const unarySlash = match.unarySlash;
 
@@ -166,9 +168,7 @@ export function parseHTML(html, options) {
     //   'area,base,br,col,embed,frame,hr,img,input,isindex,keygen,' +
     //   'link,meta,param,source,track,wbr'
     // );
-    // const unary = isUnaryTag(tagName) || !!unarySlash; // 判断上面这些
-    const unary = false;
-
+    const unary = isUnaryTag(tagName) || !!unarySlash; // 判断上面这些
     const l = match.attrs.length;
 
     const attrs = new Array(l);
