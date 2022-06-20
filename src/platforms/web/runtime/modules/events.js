@@ -54,7 +54,10 @@ function add(name, handler, capture, passive) {
       }
     };
   }
-  target.addEventListener(name, handler, capture);
+  target.addEventListener(name, handler, {
+    capture: capture,
+    passive: passive,
+  });
 }
 
 function remove(name, handler, capture, _target) {

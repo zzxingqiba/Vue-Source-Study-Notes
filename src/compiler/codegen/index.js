@@ -296,7 +296,6 @@ function genDirectives(el, state) {
   let res = "directives:[";
   let hasRuntime = false;
   let i, l, dir, needRuntime;
-  debugger
   for (i = 0, l = dirs.length; i < l; i++) {
     dir = dirs[i];
     needRuntime = true;

@@ -1,7 +1,7 @@
 /* @flow */
 
 import config from '../../../../core/config'
-import { addHandler, addProp } from 'compiler/helpers'
+import { addHandler, addProp } from '../../../../compiler/helpers'
 import { genAssignmentCode } from '../../../../compiler/directives/model'
 
 

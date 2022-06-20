@@ -174,11 +174,19 @@ export function remove(arr, item) {
   }
 }
 
-
 /**
  * Check if val is a valid array index. 检查val是否是一个有效的数组索引。
  */
- export function isValidArrayIndex (val) {
-  const n = parseFloat(String(val))
-  return n >= 0 && Math.floor(n) === n && isFinite(val)
+export function isValidArrayIndex(val) {
+  const n = parseFloat(String(val));
+  return n >= 0 && Math.floor(n) === n && isFinite(val);
+}
+
+/**
+ * Convert an input value to a number for persistence.
+ * If the conversion fails, return original string.
+ */
+export function toNumber(val) {
+  const n = parseFloat(val);
+  return isNaN(n) ? val : n;
 }

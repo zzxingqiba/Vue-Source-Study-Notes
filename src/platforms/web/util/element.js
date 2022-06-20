@@ -26,3 +26,5 @@ export const isSVG = makeMap(
 export const isReservedTag = (tag) => {
   return isHTMLTag(tag) || isSVG(tag);
 };
+
+export const isTextInputType = makeMap('text,number,password,search,email,tel,url')

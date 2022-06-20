@@ -1,7 +1,7 @@
 import { isTrue, isPrimitive, isDef, resolveAsset } from "../util/index";
-import VNode from "./vnode";
+import VNode, { createEmptyVNode } from "./vnode";
 import { normalizeChildren } from "./helpers/index";
-import config from "../config";
+import { isReservedTag } from "../../platforms/web/util/element";
 import { createComponent } from "./create-component";
 
 const SIMPLE_NORMALIZE = 1;
@@ -44,7 +44,8 @@ export function _createElement(
   if (typeof tag === "string") {
     let Ctor;
     // 此处始终未false 可能是预留的什么位置
-    if (config.isReservedTag(tag)) {
+    if (isReservedTag(tag)) {
+      vnode = new VNode(tag, data, children, undefined, undefined, context);
     } else if (
       (!data || !data.pre) &&
       isDef((Ctor = resolveAsset(context.$options, "components", tag)))
@@ -55,5 +56,24 @@ export function _createElement(
       vnode = new VNode(tag, data, children, undefined, undefined, context);
     }
   }
-  return vnode;
+  if (Array.isArray(vnode)) {
+    return vnode;
+  } else if (isDef(vnode)) {
+    if (isDef(data)) registerDeepBindings(data);
+    return vnode;
+  } else {
+    return createEmptyVNode();
+  }
+}
+
+// ref #5318
+// necessary to ensure parent re-render when deep bindings like :style and
+// :class are used on slot nodes
+function registerDeepBindings(data) {
+  // if (isObject(data.style)) {
+  //   traverse(data.style);
+  // }
+  // if (isObject(data.class)) {
+  //   traverse(data.class);
+  // }
 }

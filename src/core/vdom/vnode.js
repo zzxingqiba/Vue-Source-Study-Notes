@@ -24,6 +24,13 @@ export function createTextVNode(val) {
   return new VNode(undefined, undefined, undefined, String(val));
 }
 
+export const createEmptyVNode = (text = "") => {
+  const node = new VNode();
+  node.text = text;
+  node.isComment = true;
+  return node;
+};
+
 export function cloneVNode(vnode) {
   const cloned = new VNode(
     vnode.tag,

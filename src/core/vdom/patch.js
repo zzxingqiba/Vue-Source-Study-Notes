@@ -75,6 +75,7 @@ export function createPatchFunction(backend) {
   }
 
   function invokeCreateHooks(vnode, insertedVnodeQueue) {
+    // debugger
     for (let i = 0; i < cbs.create.length; ++i) {
       cbs.create[i](emptyNode, vnode);
     }
@@ -198,11 +199,11 @@ export function createPatchFunction(backend) {
     // }
   }
 
-  function removeNode (el) {
-    const parent = nodeOps.parentNode(el)
+  function removeNode(el) {
+    const parent = nodeOps.parentNode(el);
     // element may have already been removed due to v-html / v-text
     if (isDef(parent)) {
-      nodeOps.removeChild(parent, el)
+      nodeOps.removeChild(parent, el);
     }
   }
 
@@ -252,6 +253,7 @@ export function createPatchFunction(backend) {
       //   invokeDestroyHook(oldVnode)
       // }
     }
+    console.log(vnode);
     return vnode.elm;
   };
 }
