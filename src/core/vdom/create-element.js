@@ -38,7 +38,7 @@ export function _createElement(
 ) {
   let vnode;
   if (normalizationType === ALWAYS_NORMALIZE) {
-    // 在这一步设置了vnode.text 以便在src\core\vdom\patch.js createChildren函数中使用
+    // 在这一步设置了vnode.text 以便在src\core\vdom\patch.js createChildren函数中使用 并且处理v-for的情况
     children = normalizeChildren(children);
   }
   if (typeof tag === "string") {

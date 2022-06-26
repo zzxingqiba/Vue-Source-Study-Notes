@@ -9,8 +9,10 @@
 </head>
 <body>
   <div id="hh">
-    <input type="text" v-model="text"/>
-    <div>{{text}}</div>
+    <ul v-for="(item,index) in list" :key="index">
+      <li>{{item}}</li>
+    </ul>
+    <button @click="onChangeList">点我</button>
   </div>
   <script>
     
@@ -18,9 +20,14 @@
       el: '#hh',
       data(){
         return {    
-          text: '',
+          list: ['嘻嘻','嘿嘿','呵呵'],
         }
       },
+      methods:{
+        onChangeList(){
+          this.list.push('哈哈')
+        }
+      }
     })
   </script>
 </body>

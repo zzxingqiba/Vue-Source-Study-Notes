@@ -32,6 +32,8 @@ export function renderMixin(Vue) {
     // $createElement解释在本文件initRender函数中
     // 下面函数返回值为总的vnode层级
     vnode = render.call(vm._renderProxy, vm.$createElement);
+    // set parent
+    vnode.parent = _parentVnode
     return vnode;
   };
 }

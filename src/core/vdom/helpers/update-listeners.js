@@ -21,7 +21,6 @@ const normalizeEvent = cached((name) => {
 export function createFnInvoker(fns, vm) {
   function invoker() {
     const fns = invoker.fns;
-    console.log(JSON.stringify(fns))
     if (Array.isArray(fns)) {
       const cloned = fns.slice();
       for (let i = 0; i < cloned.length; i++) {

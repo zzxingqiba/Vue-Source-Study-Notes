@@ -253,7 +253,6 @@ export function createPatchFunction(backend) {
       //   invokeDestroyHook(oldVnode)
       // }
     }
-    console.log(vnode);
     return vnode.elm;
   };
 }
