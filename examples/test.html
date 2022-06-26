@@ -8,27 +8,30 @@
   <script src="../dist/vue.js"></script>
 </head>
 <body>
-  <div id="hh">
-    <ul v-for="(item,index) in list" :key="index">
-      <li>{{item}}</li>
-    </ul>
-    <button @click="onChangeList">点我</button>
+  <div id="hh" :class="classz">
+    <div v-for="item in list" :key="item" @click="onChangeList"> 
+      {{item}}
+    </div>
   </div>
   <script>
     
     const vm = new Vue({
       el: '#hh',
       data(){
-        return {    
-          list: ['嘻嘻','嘿嘿','呵呵'],
+        return {  
+          a: 1,  
+          list: ['哈哈'],
+          classz: 'z',
+          style: false
         }
       },
       methods:{
         onChangeList(){
-          this.list.push('哈哈')
+          this.list.push('嘿嘿')
         }
       }
     })
+    
   </script>
 </body>
 </html>

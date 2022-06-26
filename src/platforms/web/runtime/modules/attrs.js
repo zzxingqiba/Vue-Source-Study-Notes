@@ -25,17 +25,19 @@ function updateAttrs (oldVnode, vnode) {
     return
   }
   let key, cur, old
-  const elm = vnode.elm
+  // 新vnode的elm为旧节点的elm patch时已做过处理
+  const elm = vnode.elm 
   const oldAttrs = oldVnode.data.attrs || {}
   let attrs = vnode.data.attrs || {}
   // clone observed objects, as the user probably wants to mutate it
   if (isDef(attrs.__ob__)) {
     attrs = vnode.data.attrs = extend({}, attrs)
   }
-
+  // if(oldVnode)  debugger
   for (key in attrs) {
     cur = attrs[key]
     old = oldAttrs[key]
+    // 将新属性值替换到节点上
     if (old !== cur) {
       setAttr(elm, key, cur, vnode.data.pre)
     }
@@ -43,6 +45,7 @@ function updateAttrs (oldVnode, vnode) {
   // #4391: in IE9, setting type can reset value for input[type=radio]
   // #6666: IE/Edge forces progress value down to 1 before setting a max
   /* istanbul ignore if */
+  // 删除新节点上没有 旧节点上有的属性  也就是删除旧节点上多余属性
   for (key in oldAttrs) {
     if (isUndef(attrs[key])) {
       if (isXlink(key)) {

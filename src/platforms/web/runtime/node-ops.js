@@ -37,3 +37,7 @@ export function appendChild (node, child) {
 export function createTextNode (text) {
   return document.createTextNode(text)
 }
+
+export function setTextContent (node, text) {
+  node.textContent = text
+}
