@@ -9,7 +9,7 @@
 </head>
 <body>
   <div id="hh" :class="classz">
-    <div v-for="item in list" :key="item"> 
+    <div v-for="(item,index) in list" :key="item"> 
       {{item}}
     </div>
     <button @click="onChangeList">点我</button>
@@ -21,7 +21,7 @@
       data(){
         return {  
           a: 1,  
-          list: ['c', 'z', 'a', 'e', 'f', 'z'],
+          list: ['c', 'z', 'a', 'e', 'f', 'v'],
           classz: 'z',               
           style: false
         }
