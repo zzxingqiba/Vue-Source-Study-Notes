@@ -9,10 +9,10 @@
 </head>
 <body>
   <div id="hh" :class="classz">
-    <div v-for="item in list" :key="item" @click="onChangeList"> 
-      <input type="text" v-model="a">
+    <div v-for="item in list" :key="item"> 
+      {{item}}
     </div>
-    {{a}}
+    <button @click="onChangeList">点我</button>
   </div>
   <script>
     
