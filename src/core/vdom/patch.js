@@ -26,6 +26,16 @@ function sameInputType(a, b) {
   return typeA === typeB || (isTextInputType(typeA) && isTextInputType(typeB));
 }
 
+function createKeyToOldIdx (children, beginIdx, endIdx) {
+  let i, key
+  const map = {}
+  for (i = beginIdx; i <= endIdx; ++i) {
+    key = children[i].key
+    if (isDef(key)) map[key] = i
+  }
+  return map
+}
+
 export function createPatchFunction(backend) {
   let i, j;
   const cbs = {};
@@ -219,6 +229,13 @@ export function createPatchFunction(backend) {
     // }
   }
 
+  function findIdxInOld (node, oldCh, start, end) {
+    for (let i = start; i < end; i++) {
+      const c = oldCh[i]
+      if (isDef(c) && sameVnode(node, c)) return i
+    }
+  }
+
   function addVnodes(
     parentElm,
     refElm,
@@ -291,9 +308,47 @@ export function createPatchFunction(backend) {
       // 比较旧节点头部与新节点尾部 此时交叉对比
       else if (sameVnode(oldStartVnode, newEndVnode)) {
         patchVnode(oldStartVnode, newEndVnode, insertedVnodeQueue, newCh, newEndIdx)
+        // 将匹配到的旧节点头元素插入到旧节点尾指针对应的元素前面  如果oldEndVnode.elm为null也就是最后一个位置时 insertBefore默认会在父节点末尾添加oldStartVnode.elm
         canMove && nodeOps.insertBefore(parentElm, oldStartVnode.elm, nodeOps.nextSibling(oldEndVnode.elm))
         oldStartVnode = oldCh[++oldStartIdx]
         newEndVnode = newCh[--newEndIdx]
+      }
+      // 交叉比对
+      // 比较旧节点头部与新节点尾部 此时交叉对比
+      else if (sameVnode(oldEndVnode, newStartVnode)) { // Vnode moved left
+        patchVnode(oldEndVnode, newStartVnode, insertedVnodeQueue, newCh, newStartIdx)
+        canMove && nodeOps.insertBefore(parentElm, oldEndVnode.elm, oldStartVnode.elm)
+        oldEndVnode = oldCh[--oldEndIdx]
+        newStartVnode = newCh[++newStartIdx]
+      }
+      // 如果正反交叉都匹配不到  通过旧节点的key作为映射表的key 索引值作为value去创建映射表  用新节点key去在表中找 找不到直接创建新节点 找到了复用并移动旧节点节点位置
+      else {
+        if (isUndef(oldKeyToIdx)) oldKeyToIdx = createKeyToOldIdx(oldCh, oldStartIdx, oldEndIdx)
+        // 开始将oldCh的key映射成对象 通过新元素头结点 去映射关系中查找 尽可能复用原则 
+        idxInOld = isDef(newStartVnode.key)
+          ? oldKeyToIdx[newStartVnode.key]
+          : findIdxInOld(newStartVnode, oldCh, oldStartIdx, oldEndIdx) // 找到和新节点相同的旧节点所在oldCh的索引值（前面映射 走到这里 说明找到了 这里找到在oldCh中索引 方便接下来要操作）
+        // 映射关系中找不到  说明是新节点  因为是从新街元素头结点开始  所以直接创建新元素插入到旧节点oldStartVnode前面
+        if (isUndef(idxInOld)) { // New element
+          createElm(newStartVnode, insertedVnodeQueue, parentElm, oldStartVnode.elm, false, newCh, newStartIdx)
+        } else {
+          // 找到和新节点相同的旧节点（要移动的旧节点）
+          vnodeToMove = oldCh[idxInOld]
+          // 判断相同节点
+          if (sameVnode(vnodeToMove, newStartVnode)) {
+            patchVnode(vnodeToMove, newStartVnode, insertedVnodeQueue, newCh, newStartIdx)
+            // 将旧节点元素置空 所以才会有while循环开头前两步空判断
+            oldCh[idxInOld] = undefined
+            // 插入元素
+            canMove && nodeOps.insertBefore(parentElm, vnodeToMove.elm, oldStartVnode.elm)
+          } else {
+            // same key but different element. treat as new element
+            createElm(newStartVnode, insertedVnodeQueue, parentElm, oldStartVnode.elm, false, newCh, newStartIdx)
+          }
+        }
+        // 只需移动新节点头指针即可 因为走到这步判断 是正反交叉都没有匹配上 现在通过映射去找
+        // 这里只移动新节点头指针 是因为要按新节点排列的DOM顺序去排 通过直接移动旧节点DOM位置并且置undefined操作 为接下来如果旧节点还有多余的就删除掉做了准备
+        newStartVnode = newCh[++newStartIdx]
       }
     }
 

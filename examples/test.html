@@ -10,8 +10,9 @@
 <body>
   <div id="hh" :class="classz">
     <div v-for="item in list" :key="item" @click="onChangeList"> 
-      {{item}}
+      <input type="text" v-model="a">
     </div>
+    {{a}}
   </div>
   <script>
     
@@ -20,14 +21,14 @@
       data(){
         return {  
           a: 1,  
-          list: ['c', 'a', 'b'],
-          classz: 'z',
+          list: ['c', 'z', 'a', 'e', 'f', 'z'],
+          classz: 'z',               
           style: false
         }
       },
       methods:{
         onChangeList(){
-          this.list= ['a', 'b', 'c']
+          this.list= ['a', 'b', 'c', 'z', 'f']
         }
       }
     })
