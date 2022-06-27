@@ -33,7 +33,7 @@ function updateAttrs (oldVnode, vnode) {
   if (isDef(attrs.__ob__)) {
     attrs = vnode.data.attrs = extend({}, attrs)
   }
-  // if(oldVnode)  debugger
+
   for (key in attrs) {
     cur = attrs[key]
     old = oldAttrs[key]

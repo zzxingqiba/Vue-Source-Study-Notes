@@ -75,7 +75,7 @@ export function createPatchFunction(backend) {
     }
   }
 
-  // parent：父节点 elm：当前节点空标签 ref：el同级紧跟的节点
+  // parent：父节点 elm：将要插入的节点 ref：被参照的节点
   function insert(parent, elm, ref) {
     if (isDef(parent)) {
       if (isDef(ref)) {
@@ -269,7 +269,39 @@ export function createPatchFunction(backend) {
     // during leaving transitions
     const canMove = !removeOnly
     while (oldStartIdx <= oldEndIdx && newStartIdx <= newEndIdx) {
+      if (isUndef(oldStartVnode)) {
+        oldStartVnode = oldCh[++oldStartIdx] // Vnode has been moved left
+      } 
+      else if (isUndef(oldEndVnode)) {
+        oldEndVnode = oldCh[--oldEndIdx]
+      } 
+      // 比较头部 头部相同
+      else if (sameVnode(oldStartVnode, newStartVnode)) {
+        patchVnode(oldStartVnode, newStartVnode, insertedVnodeQueue, newCh, newStartIdx)
+        oldStartVnode = oldCh[++oldStartIdx]
+        newStartVnode = newCh[++newStartIdx]
+      } 
+      // 比较尾部 尾部相同
+      else if (sameVnode(oldEndVnode, newEndVnode)) {
+        patchVnode(oldEndVnode, newEndVnode, insertedVnodeQueue, newCh, newEndIdx)
+        oldEndVnode = oldCh[--oldEndIdx]
+        newEndVnode = newCh[--newEndIdx]
+      }
+      // 开始交叉比对
+      // 比较旧节点头部与新节点尾部 此时交叉对比
+      else if (sameVnode(oldStartVnode, newEndVnode)) {
+        patchVnode(oldStartVnode, newEndVnode, insertedVnodeQueue, newCh, newEndIdx)
+        canMove && nodeOps.insertBefore(parentElm, oldStartVnode.elm, nodeOps.nextSibling(oldEndVnode.elm))
+        oldStartVnode = oldCh[++oldStartIdx]
+        newEndVnode = newCh[--newEndIdx]
+      }
+    }
 
+    if (oldStartIdx > oldEndIdx) {
+      refElm = isUndef(newCh[newEndIdx + 1]) ? null : newCh[newEndIdx + 1].elm
+      addVnodes(parentElm, refElm, newCh, newStartIdx, newEndIdx, insertedVnodeQueue)
+    } else if (newStartIdx > newEndIdx) {
+      removeVnodes(oldCh, oldStartIdx, oldEndIdx)
     }
   }
 
@@ -285,10 +317,9 @@ export function createPatchFunction(backend) {
     if (oldVnode === vnode) {
       return;
     }
-
     if (isDef(vnode.elm) && isDef(ownerArray)) {
       // clone reused vnode
-      // vnode = ownerArray[index] = cloneVNode(vnode)
+      vnode = ownerArray[index] = cloneVNode(vnode)
     }
 
     // 继承老节点的elm(即之前的DOM结构) 因为新的vnode经render函数处理第一次时没有elm的  旧节点已经被处理过一次了 是有elm的 后被作为vm的$el
