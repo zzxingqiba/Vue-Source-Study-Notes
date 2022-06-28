@@ -323,11 +323,11 @@ export function createPatchFunction(backend) {
       }
       // 如果正反交叉都匹配不到  通过旧节点的key作为映射表的key 索引值作为value去创建映射表  用新节点key去在表中找 找不到直接创建新节点 找到了复用并移动旧节点节点位置
       else {
-        if (isUndef(oldKeyToIdx)) oldKeyToIdx = createKeyToOldIdx(oldCh, oldStartIdx, oldEndIdx)
+        if (isUndef(oldKeyToIdx)) oldKeyToIdx = createKeyToOldIdx(oldCh, oldStartIdx, oldEndIdx) // 映射有key值的
         // 开始将oldCh的key映射成对象 通过新元素头结点 去映射关系中查找 尽可能复用原则 
         idxInOld = isDef(newStartVnode.key)
-          ? oldKeyToIdx[newStartVnode.key]
-          : findIdxInOld(newStartVnode, oldCh, oldStartIdx, oldEndIdx) // 找到和新节点相同的旧节点所在oldCh的索引值（前面映射 走到这里 说明找到了 这里找到在oldCh中索引 方便接下来要操作）
+          ? oldKeyToIdx[newStartVnode.key] // 新节点key在映射表中 根据key取出索引（前面映射 走到这里 说明找到了 这里找到在oldCh中索引 方便接下来要操作）
+          : findIdxInOld(newStartVnode, oldCh, oldStartIdx, oldEndIdx) // 没有匹配到key的 也要尽可能复用
         // 映射关系中找不到  说明是新节点  因为是从新街元素头结点开始  所以直接创建新元素插入到旧节点oldStartVnode前面
         if (isUndef(idxInOld)) { // New element
           createElm(newStartVnode, insertedVnodeQueue, parentElm, oldStartVnode.elm, false, newCh, newStartIdx)
