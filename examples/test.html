@@ -10,7 +10,7 @@
 <body>
   <div id="hh" :class="classz">
     <div v-for="(item,index) in list" :key="item"> 
-      {{item}}
+      <span v-if="index">{{item}}</span>
     </div>
     <button @click="onChangeList">点我</button>
   </div>

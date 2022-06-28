@@ -1,5 +1,5 @@
 import { renderStatic } from "./render-static";
-import { createTextVNode } from "../../vdom/vnode";
+import { createTextVNode, createEmptyVNode } from "../../vdom/vnode";
 import { toString } from "../../../shared/util";
 import { renderList } from './render-list'
 export function installRenderHelpers(target) {
@@ -15,7 +15,7 @@ export function installRenderHelpers(target) {
   // target._k = checkKeyCodes;
   // target._b = bindObjectProps;
   target._v = createTextVNode;
-  // target._e = createEmptyVNode;
+  target._e = createEmptyVNode;
   // target._u = resolveScopedSlots;
   // target._g = bindObjectListeners;
   // target._d = bindDynamicKeys;
