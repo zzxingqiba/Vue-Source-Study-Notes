@@ -314,7 +314,7 @@ export function createPatchFunction(backend) {
         newEndVnode = newCh[--newEndIdx]
       }
       // 交叉比对
-      // 比较旧节点头部与新节点尾部 此时交叉对比
+      // 比较旧节点尾部与新节点头部 此时交叉对比
       else if (sameVnode(oldEndVnode, newStartVnode)) { // Vnode moved left
         patchVnode(oldEndVnode, newStartVnode, insertedVnodeQueue, newCh, newStartIdx)
         canMove && nodeOps.insertBefore(parentElm, oldEndVnode.elm, oldStartVnode.elm)
