@@ -2,7 +2,8 @@ import { initProxy } from "./proxy";
 import { initRender } from "./render";
 import { mergeOptions } from "../util/index";
 import { initLifecycle } from "./lifecycle";
-import { initState } from './state'
+import { initState } from './state';
+import { initEvents } from './events';
 
 let uid = 0;
 export function initMixin(Vue) {
@@ -24,7 +25,7 @@ export function initMixin(Vue) {
     vm._renderProxy = vm;
     vm._self = vm;
     initProxy(vm);
-
+    initEvents(vm)
     initLifecycle(vm);
     initRender(vm);
     // callHook(vm, 'beforeCreate')

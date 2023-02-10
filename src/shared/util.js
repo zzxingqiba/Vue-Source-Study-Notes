@@ -190,3 +190,12 @@ export function toNumber(val) {
   const n = parseFloat(val);
   return isNaN(n) ? val : n;
 }
+
+export function toArray(list, start = 0){
+  let i = list.length - start
+  const ret = new Array(i)
+  while(i--){
+    ret[i] = list[i + start]
+  }
+  return ret
+}

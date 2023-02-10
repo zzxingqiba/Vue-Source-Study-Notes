@@ -12,7 +12,10 @@
     <div v-for="(item,index) in list" :key="item"> 
       <span v-if="index">{{item}}</span>
     </div>
-    <button @click="onChangeList">点我</button>
+    <button @click="onBind">on</button>
+    <button @click="onOff">off</button>
+    <button @click="onOnce">once</button>
+    <button @click="onEmit">emit</button>
   </div>
   <script>
     
@@ -27,8 +30,24 @@
         }
       },
       methods:{
-        onChangeList(){
-          this.list= ['a', 'b', 'c', 'z', 'f']
+        globalFn(count){
+          console.log('on', count)
+        },
+        onBind(){
+          this.$on('a', this.globalFn)
+          console.log(this)
+        },
+        onOff(){
+          this.$off('a', this.globalFn)
+          console.log(this)
+        },
+        onOnce(){
+          this.$once('a', (count) => {
+            console.log('on', count)
+          })
+        },
+        onEmit(){
+          this.$emit('a', this.a++)
         }
       }
     })
