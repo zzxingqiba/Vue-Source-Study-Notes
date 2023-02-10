@@ -8,7 +8,7 @@
   <script src="../dist/vue.js"></script>
 </head>
 <body>
-  <div id="hh" :class="classz">
+  <!-- <div id="hh" :class="classz">
     <div v-for="(item,index) in list" :key="item"> 
       <span v-if="index">{{item}}</span>
     </div>
@@ -18,7 +18,6 @@
     <button @click="onEmit">emit</button>
   </div>
   <script>
-    
     const vm = new Vue({
       el: '#hh',
       data(){
@@ -52,6 +51,75 @@
       }
     })
     
+  </script> -->
+  <script>
+    class EventMixin {
+      constructor(){
+        this._events = Object.create(null)
+      }
+      $on(event, fn){
+        if(Array.isArray(event)){
+          event.map(i => this.$on(i, fn))
+        }else{
+          (this._events[event] || (this._events[event] = [])).push(fn)
+        }
+        return this
+      }
+      $emit(event){
+        let cbs = this._events[event]
+        if(cbs){
+          cbs = cbs.length > 1? this.toArray(cbs) : cbs
+          let args = this.toArray(arguments, 1)
+          cbs.map(fn => fn.apply(this, args))
+        }
+        return this
+      }
+      $off(event, fn){
+        if(!arguments.length){
+          this._events = Object.create(null)
+          return this
+        }
+        if(Array.isArray(event)){
+          event.map(i => this.$off(i, fn))
+          return this
+        }
+        const cbs = this._events[event]
+        if(!cbs) return this
+        if(!fn){
+          this._events[event] = null
+          return this
+        }
+        const index = cbs.findIndex(cb => (cb === fn) || (cb.fn === fn))
+        if(~index) cbs.splice(index, 1)
+        return this
+      }
+      $once(event, fn){
+        const on = (...args) => {
+          this.$off(event, on)
+          // console.log(args)
+          fn.apply(this, args)
+        }
+        on.fn = fn
+        this.$on(event, on)
+        return this
+      }
+      toArray(list, start){
+        let i = list.length - start
+        let ret = new Array(i)
+        while(i--){
+          ret[i] = list[i + start]
+        }
+        return ret
+      }
+    }
+    const event = new EventMixin()
+    const globalFn = (count) => {
+      console.log('on', count)
+    }
+    event.$once('a', globalFn)
+    console.log(event)
+    event.$emit('a', 1)
+    console.log(event)
   </script>
 </body>
 </html>

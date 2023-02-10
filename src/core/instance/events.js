@@ -12,9 +12,9 @@ export function eventsMixin (Vue) {
     return this
   }
   Vue.prototype.$once = function(event, fn){
-    const on = () => {
+    const on = (...args) => {
       this.$off(event, on),
-      fn.apply(this, arguments)
+      fn.apply(this, args)
     }
     on.fn = fn
     this.$on(event, on)
