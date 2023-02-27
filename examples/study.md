@@ -1,3 +1,21 @@
+## webpack
+1. loader、plugin区别
+   loader: webpack只能处理js、json文件, 可以将不同的文件类型转换为webpack可以识别的模块
+   plugin：扩展webpack的功能
+2. chunk、bundle区别
+   chunk：webpack打包过程中modules的集合
+   bundle：最终chunk经编译压缩后的一个或多个文件
+3. webpack工作流程
+   webpack是一个javascript应用程序的静态模块打包器
+   首先初始化配置, 读取webpack.config中的配置,  从入口文件开始编译, 调用配置的所有Loader进行翻译, 再找出当前模块依赖的模块, 递归处理,
+   最后构建出依赖关系图完成编译, 根据依赖关系, 组装成一个个包含多个模块的chunk, 转换为文件添加到输出列表, 最后根据配置确定好输出的文件名和路径完成输出
+4. webpack优化
+   1. html、css、js、图片压缩
+   2. 小图片转base64
+   3. 开启开发模式和生产模式source-map
+   4. 开启HMR
+   5. 开启代码分割, 打包时提取公共方法、动态引入代码到单独文件
+
 ## Vue2
 1. Vue.extend创建了Vue的一个子类，子类与Vue形成VueComponent.prototype.__proto__ = Vue.prototype
    
